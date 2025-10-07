@@ -19,7 +19,7 @@ export default function tenantDashboard() {
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <button className='absolute inset-0 flex items-center justify-center w-full h-full
                         bg-natural-900/20 dark:bg-natural-100/20 text-natural-900 dark:text-natural-100'>
-                            <Link href="/tenant/gym">Gym</Link>
+                            <Link href="/tenant/gym_members">Users</Link>
                         </button>
                     </div>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">

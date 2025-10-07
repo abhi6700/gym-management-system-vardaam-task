@@ -20,6 +20,9 @@ class GymController extends Controller
     public function __construct()
     {
         $this->user_id = auth()->user()->id;
+        if(auth()->user()->role == "tenant") {
+            abort(401);
+        }
     }
 
     public function index()
@@ -111,7 +114,7 @@ class GymController extends Controller
                 'email' => ['required',
                         'email',
                         'max:255',
-                        Rule::unique('gyms', 'email')->ignore($gym->id),  
+                        Rule::unique('gyms', 'email')->ignore($id),  
                 ],
                 'contact_no' => ['required', 'numeric'],
                 'address' => ['required'],
