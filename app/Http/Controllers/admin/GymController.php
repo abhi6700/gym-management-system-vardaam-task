@@ -72,8 +72,9 @@ class GymController extends Controller
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $th) {
-            report($th);
-            return back()->with('error','Something went wrong');
+            return Inertia::render('admin/gym/create', [
+                'error' => 'Something went wrong!'
+            ]);
         }
     }
 
@@ -130,8 +131,9 @@ class GymController extends Controller
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $th) {
-            report($th);
-            return back()->with('error','Something went wrong');
+            return Inertia::render('admin/gym/update', [
+                'error' => 'Something went wrong!'
+            ]);
         }
     }
 

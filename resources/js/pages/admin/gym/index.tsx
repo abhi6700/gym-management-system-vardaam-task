@@ -32,15 +32,16 @@ export default function Gyms({gyms}) {
                             </tr>
                         </thead>
                         <tbody>
-                            {gyms.map((gym) => (
+                            {gyms.map((gym, index) => (
                                 <tr key={gym.id} className='border-b border-natural-100
                                     dark:border-natural-700'>
-                                    <td className='px-4 py-2'>{gym.id}</td>
-                                    <td className='px-4 py-2'>{gym.name}</td>
-                                    <td className='px-4 py-2'>{gym.email}</td>
-                                    <td className='px-4 py-2'>{gym.contact_no}</td>
-                                    <td className='px-4 py-2'>
-                                        <Link as="button" href={`/admin/gym/${gym.id}/edit`} className='bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 rounded mr-2'>
+                                    <td className='px-4 py'>{index + 1}</td>
+                                    <td className='px-4 py'>{gym.name}</td>
+                                    <td className='px-4 py'>{gym.email}</td>
+                                    <td className='px-4 py'>{gym.contact_no}</td>
+                                    <td className='px-4 py'>
+                                        <Link as="button" href={`/admin/gym/${gym.id}/edit`} 
+                                            className='cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 rounded mr-2'>
                                             Edit    
                                         </Link>
                                         <Link href={`/admin/gym/${gym.id}`}

@@ -19,14 +19,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
-Route::resource('/admin/gym', GymController::class);
+Route::middleware('auth')->group(function () {
+    // admin routes
+    Route::resource('/admin/gym', GymController::class);
 
-Route::get('/tenant/dashboard', [DashboardController::class, 'index'])->name('tenant.dashboard');
+    // tenant routes
+    Route::get('/tenant/dashboard', [DashboardController::class, 'index'])->name('tenant.dashboard');
 
+    Route::resource('/tenant/gym_members', GymMemberController::class);
+    Route::get('/tenant/gym_members/add_health/{id}', [GymMemberController::class, 'add_health'])->name('tenant.gym_members.add_health');
+    Route::post('/tenant/gym_members/store_health/{id}', [GymMemberController::class, 'store_health'])->name('tenant.gym_members.store_health');
+});
 
-Route::resource('/tenant/gym_members', GymMemberController::class);
-Route::get('/tenant/gym_members/add_health/{id}', [GymMemberController::class, 'add_health'])->name('tenant.gym_members.add_health');
-Route::post('/tenant/gym_members/store_health/{id}', [GymMemberController::class, 'store_health'])->name('tenant.gym_members.store_health');
 
 
 

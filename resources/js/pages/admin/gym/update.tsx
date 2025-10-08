@@ -9,7 +9,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function UpdateGym({gym}) {
+export default function UpdateGym({gym, error}) {
     const {data, setData, errors, put, reset, processing} = useForm({
         name: gym.name,
         email: gym.email,
@@ -94,6 +94,13 @@ export default function UpdateGym({gym}) {
                         {processing ? 'Submitting...' : 'Submit'}
                     </button>
                 </form>
+                {error && (
+                    <div className='flex justify-center'>
+                        <div className="mb-4 p-4 text-red-700 bg-red-100 border border-red-300 rounded mt-2 w-80 text-center">
+                            {error}
+                        </div>
+                    </div>
+                )}
             </div>
         </AppLayout>
     );

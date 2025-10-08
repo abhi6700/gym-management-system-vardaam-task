@@ -18,6 +18,9 @@ class GymMemberController extends Controller
     public function __construct()
     {
         $this->user_id = auth()->user()->id;
+        if(auth()->user()->role == "admin") {
+            abort(401);
+        }
     }
 
     /**

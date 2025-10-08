@@ -51,7 +51,7 @@ export default function GymMembers({ gym_members }) {
                                                 Edit    
                                             </Link>
                                             <Link as="button" href={`/tenant/gym_members/add_health/${gym_member.id}`} 
-                                                className='cursor-pointer bg-green-500 hover:bg-green-700 text-white font-bold px-4 rounded'>
+                                                className='cursor-pointer bg-red-500 hover:bg-red-700 text-white font-bold px-4 rounded'>
                                                 Health    
                                             </Link>
                                         </td>
