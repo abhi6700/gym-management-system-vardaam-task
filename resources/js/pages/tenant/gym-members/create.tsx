@@ -10,7 +10,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function CreateGym({error}) {
+export default function CreateGymMembers({error}) {
     const {data, setData, errors, post, reset, processing} = useForm({
         name: '',
         email: '',

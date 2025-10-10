@@ -9,7 +9,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function UpdateGym({gym_member, error}) {
+export default function UpdateGymMembers({gym_member, error}) {
     const {data, setData, errors, put, processing} = useForm({
         name: gym_member.name,
         email: gym_member.email,
