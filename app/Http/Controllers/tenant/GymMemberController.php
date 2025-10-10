@@ -3,8 +3,13 @@
 namespace App\Http\Controllers\tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreGymMemberHealthRequest;
+use App\Http\Requests\StoreGymMemberRequest;
+use App\Http\Requests\UpdateGymMemberRequest;
 use App\Models\GymMember;
 use App\Models\GymMemberHealth;
+use App\Repositories\gym_member\GymMemberRepositoryInterface;
+use App\Repositories\gym_member\Health\GymMemberHealthRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -15,7 +20,7 @@ class GymMemberController extends Controller
 {
 
     private $user_id;
-    public function __construct()
+    public function __construct(public GymMemberRepositoryInterface $gym_member, public GymMemberHealthRepositoryInterface $gym_member_health)
     {
         $this->user_id = auth()->user()->id;
         if(auth()->user()->role == "admin") {
@@ -48,21 +53,17 @@ class GymMemberController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreGymMemberRequest $request)
     {
         try {
-            $request->validate([
-                'name' => ['required', 'max:255'],
-                'email' => ['required', 'email', 'max:255', 'unique:gym_members,email'],
-                'dob' => ['required'],
-            ]);
-            
-            GymMember::create([
+            $data = [
                 'name' => ucfirst($request->name),
                 'email' => $request->email,
                 'dob' => $request->dob,
                 'gym_id' => $this->user_id
-            ]);
+            ];
+
+            $this->gym_member->store($data);
             
             return redirect()->route('gym_members.index');
         } catch (ValidationException $e) {
@@ -87,7 +88,7 @@ class GymMemberController extends Controller
      */
     public function edit(string $id)
     {
-        $gym_member = GymMember::find($id);
+        $gym_member = $this->gym_member->find($id);
         if($gym_member->gym_id != $this->user_id){
             abort(401);
         }
@@ -99,26 +100,21 @@ class GymMemberController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateGymMemberRequest $request, string $id)
     {
         try {
-            $gym_member = GymMember::find($id);
+            $gym_member = $this->gym_member->find($id);
             if($gym_member->gym_id != $this->user_id){
                 abort(401);
             }
-            $request->validate([
-                'name' => ['required', 'max:255'],
-                'email' => ['required', 'email', 'max:255',
-                            Rule::unique('gym_members', 'email')->ignore($id),      
-                ],
-                'dob' => ['required'],
-            ]);
 
-            $gym_member->update([
+            $gym_member = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'dob' => $request->dob,
-            ]);
+            ];
+
+            $this->gym_member->update($id, $gym_member);
             
             return redirect()->route('gym_members.index');
         } catch (ValidationException $e) {
@@ -140,7 +136,7 @@ class GymMemberController extends Controller
 
     ///////////////////////////////// Health /////////////////////////////////
     public function add_health(string $id){
-        $gym_member = GymMember::find($id);
+        $gym_member = $this->gym_member->find($id);
         if($gym_member->gym_id != $this->user_id){
             abort(401);
         }
@@ -149,16 +145,12 @@ class GymMemberController extends Controller
         ]);
     }
     
-    public function store_health($id, Request $request){
+    public function store_health($id, StoreGymMemberHealthRequest $request){
         try {
-            $gym_member = GymMember::find($id);
+            $gym_member = $this->gym_member->find($id);
             if($gym_member->gym_id != $this->user_id){
                 abort(401);
             }
-            $request->validate([
-                'height' => ['required', 'numeric'],
-                'weight' => ['required', 'numeric'],
-            ]);
 
             // Bmi calculation
             $height = $request->height;
@@ -168,14 +160,15 @@ class GymMemberController extends Controller
             //
             
             $date = Carbon::now();
-            
-            GymMemberHealth::create([
+
+            $data = [
                 'height' => $height,
                 'weight' => $weight,
                 'bmi' => $bmi,
                 'gym_member_id' => $id,
                 'date' => $date->toDateString(),
-            ]);
+            ];
+            $this->gym_member_health->store($data);
             
             return redirect()->route('gym_members.index');
         } catch (ValidationException $e) {

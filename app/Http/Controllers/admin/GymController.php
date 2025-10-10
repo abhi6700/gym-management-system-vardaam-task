@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Gym;
-use App\Models\User;
+use App\Http\Requests\StoreGymRequest;
+use App\Http\Requests\UpdateGymRequest;
+use App\Repositories\gym\GymRepositoryInterface;
+use App\Repositories\user\UserRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -17,7 +19,7 @@ class GymController extends Controller
      * Display a listing of the resource.
      */
     private $user_id;
-    public function __construct()
+    public function __construct(public GymRepositoryInterface $gym, public UserRepositoryInterface $user)
     {
         $this->user_id = auth()->user()->id;
         if(auth()->user()->role == "tenant") {
@@ -27,8 +29,9 @@ class GymController extends Controller
 
     public function index()
     {
+        $gyms = $this->gym->all($this->user_id);
         return Inertia::render('admin/gym/index', [
-            'gyms'=> Gym::where('admin_id', $this->user_id)->get(),
+            'gyms'=> $gyms,
         ]);
     }
 
@@ -43,31 +46,27 @@ class GymController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreGymRequest $request)
     {
         try {
-            $request->validate([
-                'name' => ['required', 'max:255'],
-                'email' => ['required', 'email', 'max:255', 'unique:gyms,email'],
-                'contact_no' => ['required', 'numeric'],
-                'address' => ['required'],
-                'password' => ['required', 'min:6'],
-            ]);
-            
-            Gym::create([
+            $data = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'contact_no' => $request->contact_no,
                 'address' => $request->address,
                 'admin_id' => $this->user_id
-
-            ]);
-            User::create([
+            ];
+            $this->gym->store($data);
+            
+            $userData = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => 'tenant',
-            ]);
+            ];
+
+            $this->user->store($userData);
+
             return redirect()->route('gym.index');
         } catch (ValidationException $e) {
             throw $e;
@@ -91,7 +90,7 @@ class GymController extends Controller
      */
     public function edit(string $id)
     {
-        $gym = Gym::find($id);
+        $gym = $this->gym->find($id);
         if($gym->admin_id != $this->user_id){
             abort(401);
         }
@@ -103,30 +102,28 @@ class GymController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateGymRequest $request, string $id)
     {
         try {
-            $gym = Gym::find($id);
+            $gym = $this->gym->find($id);
             if($gym->admin_id != $this->user_id){
                 abort(401);
             }
-            $request->validate([
-                'name' => ['required', 'max:255'],
-                'email' => ['required',
-                        'email',
-                        'max:255',
-                        Rule::unique('gyms', 'email')->ignore($id),  
-                ],
-                'contact_no' => ['required', 'numeric'],
-                'address' => ['required'],
-            ]);
-            
-            $gym->update([
+            $data = [
                 'name' => $request->name,
                 'email' => $request->email,
                 'contact_no' => $request->contact_no,
                 'address' => $request->address,
-            ]);
+            ];
+
+            $this->gym->update($id, $data);
+
+            // $userData = [
+            //     'name' => $request->name,
+            //     'email' => $request->email,
+            // ];
+            // $this->user->update($gym->admin_id, $userData);
+
             return redirect()->route('gym.index');
         } catch (ValidationException $e) {
             throw $e;
@@ -142,11 +139,11 @@ class GymController extends Controller
      */
     public function destroy(string $id)
     {
-        $gym = Gym::find($id);
+        $gym = $this->gym->find($id);
         if($gym->admin_id != $this->user_id){
             abort(401);
         }
-        $gym->delete();
+        $this->gym->destroy($id);
         return redirect()->route('gym.index');
     }
 }
