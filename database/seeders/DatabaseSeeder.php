@@ -16,12 +16,16 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        $this->call([TenantSeeder::class]);
+
         User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Admin',
-                'password' => Hash::make('123456'),
+                'password' => Hash::make('12345678'),
                 'email_verified_at' => now(),
+                'role' => 'admin',
+                'tenant_id' => 'admin',
             ]
         );
     }

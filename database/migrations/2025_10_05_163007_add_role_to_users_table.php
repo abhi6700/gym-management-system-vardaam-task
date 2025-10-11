@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('role')->default('admin')->after('email');
+            $table->string('tenant_id')->default('admin')->after('role')->nullable();
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('role');
+            $table->dropColumn('tenant_id');
         });
     }
 };

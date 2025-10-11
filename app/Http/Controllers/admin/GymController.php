@@ -63,6 +63,7 @@ class GymController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => 'tenant',
+                'tenant_id' => 'tenant',
             ];
 
             $this->user->store($userData);
