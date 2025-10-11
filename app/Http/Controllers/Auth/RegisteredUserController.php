@@ -20,6 +20,10 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
+        $host = request()->getHost();
+        if($host == 'tenant.localhost') {
+            abort(401);
+        }
         return Inertia::render('auth/register');
     }
 
